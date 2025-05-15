@@ -78,20 +78,20 @@
         listContainerEl.classList.toggle("hidden");
       }
     }
-
-    // Always keep toggle button wired
     toggleListBtn.addEventListener("click", toggleList);
 
-    // Add machine
+    // Add machine: open camera/picker first, then prompt for label
     addMachineBtn.addEventListener("click", () => {
-      const label = prompt("Machine name:");
-      if (!label) return;
       const input = document.createElement("input");
-      input.type = "file"; input.accept = "image/*";
+      input.type = "file";
+      input.accept = "image/*";
+      input.capture = "environment";
       input.onchange = e => {
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onload = async () => {
+          const label = prompt("Machine name:");
+          if (!label) return;
           await db.machines.add({ label, image: reader.result });
           loadMachines();
         };
@@ -121,12 +121,9 @@
     async function selectMachine(id) {
       selectedMachineId = id;
       const m = await db.machines.get(id);
-
-      // auto-hide sidebar on mobile
       if (window.innerWidth < 768) {
         listContainerEl.classList.add("hidden");
       }
-
       detailEl.innerHTML = `
         <h2 class="text-2xl font-semibold mb-2">${m.label}</h2>
         <img
@@ -144,13 +141,9 @@
           <canvas id="progressChart" class="w-full h-full"></canvas>
         </div>
       `;
-
-      // clicking the detail image also toggles the list
       document
         .getElementById("detailImage")
         .addEventListener("click", toggleList);
-
-      // wire up add entry
       document.getElementById("addEntryBtn").onclick = showEntryForm;
       await renderChart();
     }
@@ -178,11 +171,9 @@
       const entries = await db.entries
         .where("machineId").equals(selectedMachineId)
         .sortBy("date");
-
       const dates   = entries.map(e => e.date);
       const weights = entries.map(e => e.weight);
       const reps    = entries.map(e => e.reps);
-
       const ctx = document.getElementById("progressChart").getContext("2d");
       new Chart(ctx, {
         type: "line",

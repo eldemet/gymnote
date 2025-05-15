@@ -1,18 +1,18 @@
-// 1️⃣ Set up Dexie DB
+// Set up Dexie DB
 const db = new Dexie("GymTrackerDB");
 db.version(1).stores({
   machines: "++id, label, image",
   entries:  "++id, machineId, date, weight, reps, sets"
 });
 
-// 2️⃣ Grab our UI elements
+// Grab our UI elements
 const machineListEl = document.getElementById("machineList");
 const detailEl      = document.getElementById("machineDetail");
 const addMachineBtn = document.getElementById("addMachineBtn");
 
 let selectedMachineId = null;
 
-// 3️⃣ Add new machine (label + photo)
+// Add new machine (label + photo)
 addMachineBtn.addEventListener("click", () => {
   const label = prompt("Machine name:");
   if (!label) return;
@@ -32,7 +32,7 @@ addMachineBtn.addEventListener("click", () => {
   input.click();
 });
 
-// 4️⃣ Load & render machine list
+// Load & render machine list
 async function loadMachines() {
   const machines = await db.machines.toArray();
   machineListEl.innerHTML = "";
@@ -48,7 +48,7 @@ async function loadMachines() {
   });
 }
 
-// 5️⃣ Select a machine → show details, “Add Entry” & chart
+// Select a machine → show details, “Add Entry” & chart
 async function selectMachine(id) {
   selectedMachineId = id;
   const m = await db.machines.get(id);
@@ -68,7 +68,7 @@ async function selectMachine(id) {
   await renderChart();
 }
 
-// 6️⃣ Prompt for a new workout entry
+// Prompt for a new workout entry
 async function showEntryForm() {
   const today = new Date().toISOString().slice(0,10);
   const date   = prompt("Date (YYYY-MM-DD):", today);
@@ -87,7 +87,7 @@ async function showEntryForm() {
   selectMachine(selectedMachineId);
 }
 
-// 7️⃣ Draw the Chart.js line chart
+// Draw the Chart.js line chart
 async function renderChart() {
   const entries = await db.entries
     .where("machineId").equals(selectedMachineId)
@@ -115,5 +115,5 @@ async function renderChart() {
   });
 }
 
-// 8️⃣ Initial load
+// Initial load
 loadMachines();
